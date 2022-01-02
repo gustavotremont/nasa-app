@@ -1,62 +1,69 @@
 const Landings = require('../models/landings')
+const {filterByDateRange, filterByMinimumMass} = require('../utils/landingsFilters')
+
+const getLandingsByMass = async (req, res) => {
+    const {from, to} = req.query
+    let result
+    try {
+
+        req.params.value 
+            ? result = await Landings.find({"mass": req.params.value}, "name mass year geolocation -_id")
+            : result = []
+
+        if(from || to) result = filterByDateRange(result, from, to)
+    
+        result.length !== 0
+            ? res.status(200).json({status: 'success', results: result})
+            : res.status(404).json({status: 'not found', results: result, message: 'no landing match with these specs'})
+        
+    } catch (error) {
+        res.status(400).json({status: 'error', message: err})
+    }
+}
+
+const getLandingsByClass = async (req, res) => {
+    const {minimum_mass, from, to} = req.query
+    let result
+    try {
+
+        req.params.value 
+            ? result = await Landings.find({"recclass": req.params.value}, "name mass year recclass geolocation -_id")
+            : result = []
+
+        if(minimum_mass) result = filterByMinimumMass(result, minimum_mass)
+        if(from || to) result = filterByDateRange(result, from, to)
+    
+        result.length !== 0
+            ? res.status(200).json({status: 'success', results: result})
+            : res.status(404).json({status: 'not found', results: result, message: 'no landing match with these specs'})
+        
+    } catch (error) {
+        res.status(400).json({status: 'error', message: err})
+    }
+}
 
 const getLandings = async (req, res) => {
-    try{  
+    const {minimum_mass, from, to} = req.query
+    let result
+    try {
 
-        let result
+        result = await Landings.find({}, "name mass year recclass geolocation -_id")
 
-        if (req.query.minimum_mass) {
-            result = await Landings.find({"mass": { "$gte" : req.query.minimum_mass } }, "name mass geolocation");
-            if(result.length !== 0){
-                res.status(200).json({status: 'success', results: result})
-            } else {
-                res.status(404).json({status: 'not found', message: 'any landing match with this minimum mass'})
-            }
-            
-        } else if (req.params.routeParam === 'mass' && req.params.value) {
+        if(minimum_mass) result = filterByMinimumMass(result, minimum_mass)
+        if(from || to) result = filterByDateRange(result, from, to)
 
-            result = await Landings.find({"mass": req.params.value}, "name mass geolocation");
-
-            if(result.length !== 0){
-                res.status(200).json({status: 'success', results: result})
-            } else {
-                res.status(404).json({status: 'not found', message: 'any landing match with this mass'})
-            }
-        } else if(req.params.routeParam === 'class' && req.params.value) {
-
-            result = await Landings.find({"recclass": req.params.value}, "name recclass geolocation");
-
-            if(result.length !== 0){
-                res.status(200).json({status: 'success', results: result})
-            } else {
-                res.status(404).json({status: 'not found', message: 'any landing match with this class'})
-            }
-        } else if (req.query.from || req.query.to) { 
-
-            if (req.query.from && req.query.to) {
-                result = await Landings.find({ "year": { $gte: req.query.from, $lte: (req.query.to+1) } }, "name mass year geolocation")
-            } else if (req.query.from) {
-                result = await Landings.find({"year": { $gte: req.query.from } }, "name mass year geolocation")
-            } else if (req.query.to) {
-                result = await Landings.find({"year": { $lte: (req.query.to+1) } }, "name mass year geolocation")
-            }
+        result.length !== 0
+            ? res.status(200).json({status: 'success', results: result})
+            : res.status(404).json({status: 'not found', results: result, message: 'no landing match with these specs'})
         
-            if(result.length !== 0){
-                res.status(200).json({status: 'success', results: result})
-            } else {
-                res.status(404).json({status: 'not found', message: 'any landing match with this year range'})
-            }
-
-        } else {
-            res.status(404).json({status: 'not found', message: 'any landing match with this class'})
-        }
-    } 
-    catch(err){
+    } catch (err) {
         res.status(400).json({status: 'error', message: err})
-    } 
-} 
+    }
+}
 
 const landings = {
+    getLandingsByMass,
+    getLandingsByClass,
     getLandings
 }
 
