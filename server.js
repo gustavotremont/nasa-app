@@ -16,9 +16,11 @@ app.use(express.urlencoded( { extended: false } ));
 
 /****************** Import routes ******************/
 const indexLandings = require('./routes/landings');
+const indexNeas = require('./routes/neas')
 
 /****************** Routes ******************/
 app.use('/api/astronomy', indexLandings);
+app.use('/api/astronomy', indexNeas);
 
 /****************** Actice Server ******************/
 app.listen(port, () => {
