@@ -1,10 +1,10 @@
 import React from "react";
 import { shallow } from "enzyme";
-import Main from "./Main";
+import Neas from "./Neas";
 
-describe("Main", () => {
+describe("Neas", () => {
   test("matches snapshot", () => {
-    const wrapper = shallow(<Main />);
+    const wrapper = shallow(<Neas />);
     expect(wrapper).toMatchSnapshot();
   });
 });
