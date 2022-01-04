@@ -17,7 +17,7 @@ const getLandingsByMass = async (req, res) => {
             : res.status(404).json({status: 'not found', results: result, message: 'no landing match with these specs'})
         
     } catch (error) {
-        res.status(400).json({status: 'error', message: err})
+        res.status(400).json({status: 'error', message: error})
     }
 }
 

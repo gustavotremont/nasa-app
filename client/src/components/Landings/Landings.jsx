@@ -28,7 +28,10 @@ function Landings() {
           
           const res = await axios.get(endpoint)
 
-          setLandings(res.data.results)     
+          const data = res.data.results.filter(landing => landing.year && landing.geolocation)
+
+          setLandings(data)    
+
         } catch (error) {
           console.log(error);
         }
@@ -36,7 +39,7 @@ function Landings() {
   
       getLandings()
     }
-  }, [primaryFilter, primaryValue])
+  }, [primaryFilter, primaryValue, secundaryFilters])
 
   const handleSecundaryFilters = ({minimumMass, yearFrom, yearTo}) => {
     let result = ''
@@ -59,11 +62,14 @@ function Landings() {
     const yearTo = event.target.to.value;
 
     setPrimaryFilter(primaryFilter);
-    setPrimaryValue(primaryValue)
+    setPrimaryValue(primaryValue.toUpperCase())
     setSecundaryFilters({minimumMass, yearFrom, yearTo})
   }
 
   const paintMarkers = () => {
+
+
+
     return landings.map( (landing, i) => {
       return <Marker key={i} position={[landing.geolocation.latitude, landing.geolocation.longitude]} icon={icon}>
               <Popup>
